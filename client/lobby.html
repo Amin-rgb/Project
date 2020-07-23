@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <script src = "https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <title>Document</title>
+</head>
+<body>
+  
+<table id = "table">
+
+<h1>Please dont put the same room name as someone else</h1>
+
+</table>
+
+<button id = "roomCreateButton" onclick = "roomCreateName()">Create room</button>
+<input type = "text" placeholder = "enter the room name"  id ="roomUsername">
+<button id = "button">Start</button>
+<button id="deleteRooms">Delete your room</button>
+
+<h2 id = "message">please dont put space in the room name</h2>
+
+<style>
+tr{
+    background-color: coral;
+}
+
+td{
+    padding:10px;
+    width:50px;
+}
+
+#big{
+    width:150px;
+}
+
+.hover:hover{
+    background-color:cornflowerblue;
+    cursor:pointer;
+}
+
+#button{
+    display:none;
+}
+
+.select{
+
+    background-color:rgb(255, 0, 51);
+}
+
+#message{
+  display:none;
+}
+
+
+</style>
+
+<script>
+var clickables = document.getElementsByClassName("hover")
+var selected;
+var buttonText = document.getElementById("button")
+var name = ""
+var buttonWasClicked = false;
+
+$("document").ready(function ()
+{
+
+update()
+
+})
+
+
+function roomCreateName()
+{
+  if($("#roomUsername").val().indexOf(" ") === -1)
+  {
+	  $.ajax(
+	  {
+	  	type: "POST",
+	  	url: "http://localhost:3000/createRooms",
+	  	data:
+	  	{
+	  		roomName: $("#roomUsername").val()
+	  	},
+	  	success: function (result) {
+        
+		  	buttonWasClicked = true;
+	  	}
+  })
+  
+}
+
+else{
+
+  $("#message").css("display","inline")
+
+}
+
+}
+
+function update() {
+  $.ajax({
+    url: "http://localhost:3000/getRooms",
+    success: function (result) {
+      console.log(result);
+      var string =
+        '<tr><td id = "big"> room name </td><td>players</td><td>players in this room</td></tr>';
+
+      var i;
+      for (i = 0; i < result.length; i++) {
+        string =
+          string +
+          ' <tr> <td class = "hover">' +
+          result[i].roomName +
+          "</td>  <td>" +
+          result[i].players +
+		  "</td>  <td>" ;	
+			var j;
+			var string2 = ""
+		for(j=0;j<result[i].bird.length;j++)
+		{
+			
+			if(j == result[i].bird.length-1)
+			{
+				string2 = string2 +result[i].bird[j].name
+			}
+			else
+			{
+				string2 = string2 +result[i].bird[j].name+","
+			}
+		}
+		console.log(result[i].bird)
+		string +=string2
+          "</td></tr> ";
+		console.log(result[i].bird);
+	  }
+
+      $("#table").html(string);
+
+      var i;
+      for (i = 0; i < clickables.length; i++) {
+        clickables[i].addEventListener("click", function (e) {
+          if (selected) {
+            selected.classList.remove("select");
+          }
+          buttonText.style.display = "block";
+          e.target.classList.add("select");
+          buttonText.innerHTML = "Start " + e.target.innerHTML;
+          selected = e.target;
+          name = e.target.innerHTML;
+        });
+      }
+
+      $("#button").click(function () {
+        console.log("hello");
+        window.location.href =
+          "http://localhost:3000/joinRoom?roomName=" + name;
+      });
+
+      
+    },
+  });
+
+}
+
+$("#deleteRooms").click(function(){
+  console.log(selected)
+  $.ajax({
+    url: "http://localhost:3000/deleterooms/"+selected.innerHTML,
+    success: function (result) {
+      alert(result)
+    },
+    error: function (error)
+    {
+      alert("you cant do that")
+    },
+    type:"DELETE"
+  })
+})
+
+var timer = setInterval(function () {
+
+	if(buttonWasClicked == true)
+	{
+		update()
+		buttonWasClicked == false
+	}
+
+}, 900);
+
+</script>
+
+</body>
+</html>

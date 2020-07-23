@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+
+<html>
+  <meta charset="UTF-8">
+  
+  <head>
+  
+  <script src = 'https://cdn.socket.io/socket.io-1.4.5.js'></script>
+  <script src = "https://code.jquery.com/jquery-3.5.1.min.js"></script>
+</head>
+
+<body>
+
+<canvas id="myCanvas" width="800" height="420">
+    Your browser does not support the HTML5 canvas tag.</canvas>
+<br>
+
+<div id = "PRESSBUTTON">
+	<button id = "button" onclick = "Button()">Start</button>
+	<input type = "text" placeholder = "enter your username"  id ="username">
+</div>
+
+<h1>High Scores</h1>
+
+<table id="tableId">
+
+
+</table>
+
+
+</body>
+	
+<style>
+#myCanvas{
+margin-left:100px;
+}
+
+#background{display:none;}
+
+</style>
+
+<script>
+var socket = io();
+
+var c = document.getElementById("myCanvas");
+var ctx = c.getContext("2d");
+var bird = []
+var backGround = { x: 0 }
+var ground = { x: 0 }
+var gameOver = false
+var startGame = 0
+var tubesTop = []
+var tubesBottom = []
+var winner;
+var postHighScoreFlag = true;
+var windows = window.location.href
+var roomName = windows.substring(windows.indexOf('roomName')+9,windows.length)
+flappyBackground = new Image();
+flappyBackground.src = 'client/img/background.png'
+
+flappyGround = new Image();
+flappyGround.src = 'client/img/ground.png'
+
+ghostBird = new Image()
+ghostBird.src = 'client/img/desturated.png'
+
+var tube = new Image();
+tube.src = 'client/img/Pipe.png';
+
+var flappy = new Image()
+flappy.src = 'client/img/flappy.png'
+
+var bottomTube = new Image()
+bottomTube.src = "client/img/bottomPipe.png"
+
+socket.emit('lobby',{
+	msg:roomName
+})
+	socket.on('birdLocation',function(data){
+		bird = data.bird
+		tubesTop = data.tubesTop
+		tubesBottom = data.tubesBottom
+		//console.log(bird[0].score)
+	})
+
+	socket.on('gameOver',function(data){
+	
+		gameOver = data.gameOver
+
+		if(gameOver == true)
+		{
+			document.getElementById("PRESSBUTTON").innerHTML = '<button id = "button" onclick = "Button()">Start</button><input type = "text" placeholder = "enter your username"  id ="username">'
+		}
+	})
+	
+		socket.on('timerTimeLeft',function(data){
+		startGame = data.msg
+	})
+		
+	socket.on("birdName",function(data){
+		winner = data.BiRdNaMe
+		
+	})
+	function Button()
+	{
+		socket.emit('Start',
+		{
+			username:document.getElementById('username').value
+			
+		})
+		
+		if(gameOver == false)
+		{
+			document.getElementById('PRESSBUTTON').innerHTML = '  '
+		}
+
+
+
+
+	}
+	
+	
+	function drawBird(a)
+	{
+	
+	ctx.save();
+
+	if (bird[a].force > 0) {
+		ctx.translate(bird[a].x-30, bird[a].y+15 );
+		ctx.rotate(320 * Math.PI / 180);
+
+	}
+
+	else {
+		ctx.translate(bird[a].x+4, bird[a].y-28 );
+		ctx.rotate(40 * Math.PI / 180);
+	}
+  
+	ctx.drawImage(flappy, 11, 2, bird[a].w+23 , bird[a].h+23 )
+
+	ctx.restore()
+		
+		
+	}
+	
+	function drawGhostBird(a)
+	{ 
+	ctx.save();
+
+	if (bird[a].force > 0) {
+		ctx.translate(bird[a].x-30, bird[a].y+15 );
+		ctx.rotate(320 * Math.PI / 180);
+
+	}
+
+	else {
+		ctx.translate(bird[a].x+4, bird[a].y-28 );
+		ctx.rotate(40 * Math.PI / 180);
+	}
+  
+	ctx.drawImage(ghostBird, 11, 2, bird[a].w+23 , bird[a].h+23 )
+
+	ctx.restore()
+		
+	}
+	
+
+function draw() {
+	ctx.fillStyle = "#00ffff"
+	ctx.fillRect(0, 0, 800, 420)
+
+	ctx.drawImage(flappyBackground, backGround.x, 0, 1600, 480)
+
+
+	if (backGround.x < -800) {
+		ctx.drawImage(flappyBackground, backGround.x + 1600, 0, 1600, 480)
+
+	}
+	if (backGround.x < -1600) {
+		backGround.x = 3
+	}
+	
+
+	var i;
+	for (i = 0; i < tubesTop.length; i++) {
+		ctx.drawImage(tube, tubesTop[i].x, tubesTop[i].y, tubesTop[i].w, tubesTop[i].h)
+		
+	}
+
+
+	var i;
+	for (i = 0; i < tubesBottom.length; i++) {
+		ctx.drawImage(bottomTube, tubesBottom[i].x, tubesBottom[i].y, tubesBottom[i].w, tubesBottom[i].h)
+	
+	}
+
+	
+	if (gameOver == true) 
+	{
+		
+		if(typeof winner === "undefined" || bird.length == 1)	
+		{
+		ctx.fillStyle = "#000000"
+		ctx.font = "70px Arial"
+		ctx.fillText("Game Over", 150, 200)
+		}
+
+		else
+		{
+			ctx.fillStyle = "#000000"
+			ctx.font = "70px Arial"
+			ctx.fillText(winner + " is the winner", 150, 200)
+		}
+
+
+	}
+
+	
+	ctx.fillStyle = "#ffffff"
+	ctx.font = "150px Arial"
+	if(startGame <= 1000 && startGame > 500)
+	{
+		ctx.fillStyle = "#808080"
+		ctx.fillText('3', 360, 200)
+		ctx.fillStyle = "#ffffff"
+		ctx.fillText('3', 350, 200)
+	}
+	
+	if(startGame <= 500 && startGame > 100)
+	{
+		ctx.fillStyle = "#808080"
+		ctx.fillText('2', 360, 200)
+		ctx.fillStyle = "#ffffff"
+		ctx.fillText('2', 350, 200)
+	}
+	
+		if(startGame <= 100 && startGame >0)
+	{
+		ctx.fillStyle = "#808080"
+		ctx.fillText('1', 360, 200)
+		ctx.fillStyle = "#ffffff"
+		ctx.fillText('1', 350, 200)
+	}		
+
+
+}
+
+function update()
+{
+
+	if(gameOver == false)
+	{
+		backGround.x = backGround.x - 1
+	}
+
+}
+
+document.addEventListener("keydown", function (e) {
+
+	if (e.key == ' ') {
+		socket.emit('space',{
+			
+		})
+	}
+	
+});
+
+function postHighScore(){  
+	$.ajax(
+	{
+		type: "POST",
+		url: "http://localhost:3000/top3Players",
+		data:
+		{
+			roomName:roomName
+		},
+		success: function (result) {
+			
+			var string = "<tr><td>player name</td><td>score</td></tr>"
+
+				string += "<tr><td>"+result.first.name+"</td><td>"+result.first.score+"</td></tr>"
+				string +="<tr><td>"+result.second.name+"</td><td>"+result.second.score+"</td></tr>"
+				string +="<tr><td>"+result.last.name+"</td><td>"+result.last.score+"</td></tr>"
+
+		document.getElementById("tableId").innerHTML = string
+		}
+	})
+}
+
+postHighScore()
+
+c.addEventListener("click",function(e){
+	
+	socket.emit('space',{
+		
+	})
+
+});
+
+
+var timer = setInterval(function () {
+
+draw()
+console.log(gameOver)
+if(gameOver ==  false)
+{
+update()
+		var i
+		for(i=0;i<bird.length;i++)
+		{
+		if(bird[i].alive == true)	
+		{
+			if(socket.id != bird[i].id)
+			{
+				drawGhostBird(i)
+			}
+		}
+		}
+
+	
+		var i
+		for(i=0;i<bird.length;i++)
+		{
+			
+			if(bird[i].alive == true)	
+			{
+				if(socket.id == bird[i].id)
+				{
+					drawBird(i)
+				}
+			}
+		}
+
+		postHighScoreFlag = tr
+}
+
+if(gameOver == true && postHighScoreFlag == true)
+{
+	postHighScore()
+	postHighScoreFlag = false;
+}
+
+
+
+}, 100);
+
+
+
+</script>
+
+
+</html>
