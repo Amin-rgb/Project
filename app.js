@@ -31,7 +31,7 @@ con.connect(function(err) {
         players: 0,
         maxPlayers: 10,
         gameOver: true,
-        playersReady: 0,
+        playersReady:0 ,
         numberOfId: 0,
         bird: [],
         birdsDead: 0,
@@ -213,7 +213,8 @@ socketGlobal = io.sockets.on("connection", function (socket) {
 
   socket.on("Start", function (data) {
 
-    rooms[roomIndex(socket.id)].playersReady++;
+
+      rooms[roomIndex(socket.id)].playersReady++;
 
     var j;
     for (j = 0; j < rooms.length; j++) 
@@ -360,6 +361,7 @@ function GameOver(a, roomIndex) {
     );
    
     rooms[roomIndex].playersReady = 0;
+    console.log("execute")
     rooms[roomIndex].startTimer = 1000;
     rooms[roomIndex].birdsDead = 0
     rooms[roomIndex].bird[a].alive  = true
@@ -429,7 +431,10 @@ function roomNameIndex(roomName)
   return -1;
 }
 
+
+
 var timer = setInterval(function () {
+  console.log(rooms)
   var i;
   for (i = 0; i < rooms.length; i++) {
     if (
@@ -477,10 +482,10 @@ var timer = setInterval(function () {
 
     if(rooms[i].gameOver == true)
     {
-
       var a;
       for (a = 0; a < rooms[i].bird.length; a++)
       {
+
         if(rooms[i].bird[a].currentScore > rooms[i].bird[a].highestScore)
         {
           rooms[i].bird[a].highestScore = rooms[i].bird[a].currentScore
@@ -490,7 +495,7 @@ var timer = setInterval(function () {
         {
           rooms[i].highScore.last.score=rooms[i].bird[a].currentScore
           rooms[i].highScore.last.name=rooms[i].bird[a].name
-          console.log(rooms[i].highScore)
+         // console.log(rooms[i].highScore)
         }
 
         if(rooms[i].highScore.last.score > rooms[i].highScore.second.score)
@@ -498,7 +503,7 @@ var timer = setInterval(function () {
           var save = rooms[i].highScore.last
           rooms[i].highScore.last = rooms[i].highScore.second
           rooms[i].highScore.second = save
-          console.log(rooms[i].highScore)
+          //console.log(rooms[i].highScore)
         }
 
         if(rooms[i].highScore.second.score > rooms[i].highScore.first.score)
@@ -506,7 +511,7 @@ var timer = setInterval(function () {
           var save = rooms[i].highScore.second
           rooms[i].highScore.second = rooms[i].highScore.first
           rooms[i].highScore.first = save
-          console.log(rooms[i].highScore)
+          //console.log(rooms[i].highScore)
         }
 
         rooms[i].bird[a].currentScore=0
@@ -527,6 +532,7 @@ var timer = setInterval(function () {
         if (err) throw err;
       });
       } 
+
 
     }
 
