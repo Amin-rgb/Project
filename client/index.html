@@ -53,6 +53,7 @@ var tubesTop = []
 var tubesBottom = []
 var winner;
 var postHighScoreFlag = true;
+var playerReady = false;
 var windows = window.location.href
 var roomName = windows.substring(windows.indexOf('roomName')+9,windows.length)
 flappyBackground = new Image();
@@ -91,7 +92,7 @@ socket.emit('lobby',{
 		{
 			document.getElementById("PRESSBUTTON").innerHTML = '<button id = "button" onclick = "Button()">Start</button><input type = "text" placeholder = "enter your username"  id ="username">'
 		}
-	})
+	})	
 	
 		socket.on('timerTimeLeft',function(data){
 		startGame = data.msg
@@ -109,13 +110,8 @@ socket.emit('lobby',{
 			
 		})
 		
-		if(gameOver == false)
-		{
-			document.getElementById('PRESSBUTTON').innerHTML = '  '
-		}
 
-
-
+			document.getElementById('PRESSBUTTON').innerHTML = ' '
 
 	}
 	
