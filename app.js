@@ -211,8 +211,29 @@ socketGlobal = io.sockets.on("connection", function (socket) {
     rooms[roomIndex(socket.id)].players++
   });
 
-  socket.on("Start", function (data) {
 
+  // function sameName(name)
+  //   {
+  //     var i;
+  //     for(i=0;i<rooms.length;i++)
+  //     {
+  //      var j;
+  //       for(j=0;j<rooms[i].bird.length;j++)
+  //       {
+  //         if(rooms[i].bird[j].name == name)
+  //        {
+  //           var randomNameOg = Math.random()*10000000000000+1
+  //          var randomNameNew = Math.round(randomNameOg)
+
+  //          return "player"+randomNameNew;
+  //        }
+  //       }
+    
+  //     }
+  //     return name;
+  //   }
+ 
+  socket.on("Start", function (data) {
 
       rooms[roomIndex(socket.id)].playersReady++;
 
@@ -224,15 +245,16 @@ socketGlobal = io.sockets.on("connection", function (socket) {
       {
         if (socket.id == rooms[j].bird[i].id) {
 
-          rooms[j].bird[i].name = data.username;
+          rooms[j].bird[i].name = data.username
 
            // console.log("console")
-            rooms[j].tubesTop = [{ x: 210, y: 0, w: 30, h: 100 }]
-            rooms[j].tubesBottom = [{ x: 210, y: 230, w: 30, h: 200 }]
+            rooms[j].tubesTop = [{ x: 210, y: 0, w: 30, h: 100 }];
+            rooms[j].tubesBottom = [{ x: 210, y: 230, w: 30, h: 200 }];
             initializeTubes()
 
-          rooms[j].bird[i].x = 40
-          rooms[j].bird[i].y = 210
+          rooms[j].bird[i].x = 40;
+          rooms[j].bird[i].y = 210;
+          rooms[j].bird[i].alive = true;
           //console.log(rooms[j].bird[i].name);
 
         }
@@ -362,9 +384,10 @@ function GameOver(a, roomIndex) {
    
     rooms[roomIndex].playersReady = 0;
     console.log("execute")
+
     rooms[roomIndex].startTimer = 1000;
-    rooms[roomIndex].birdsDead = 0
     rooms[roomIndex].bird[a].alive  = true
+    rooms[roomIndex].birdsDead = 0
     }
 
   if (rooms[roomIndex].numberOfId - rooms[roomIndex].birdsDead == 1 ) {
@@ -434,7 +457,6 @@ function roomNameIndex(roomName)
 
 
 var timer = setInterval(function () {
-  console.log(rooms)
   var i;
   for (i = 0; i < rooms.length; i++) {
     if (
